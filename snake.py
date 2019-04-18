@@ -9,7 +9,7 @@ import platform
 
 #determine user's clear command
 if platform.system() == 'Windows':
-    clrcmd = 'clr'
+    clrcmd = 'cls'
 else:
     clrcmd = 'clear'
 
