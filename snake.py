@@ -3,41 +3,43 @@ from snakeClass import Snake
 import random
 import sys
 import os
-import termios
-import tty
 import platform
 
 #determine user's clear command
 if platform.system() == 'Windows':
     clrcmd = 'cls'
+    import msvcrt
+    getch = msvcrt.getch
 else:
     clrcmd = 'clear'
+    
+    import termios
+    import tty
+
+    #code from:
+    #https://stackoverflow.com/questions/510357/python-read-a-single-character-from-the-user/510364
+    key_Enter = 13
+    key_Esc = 27
+    key_Up = '\033[A'
+    key_Dn = '\033[B'
+    key_Rt = '\033[C'
+    key_Lt = '\033[D'
+    fdInput = sys.stdin.fileno()
+    termAttr = termios.tcgetattr(0)
+
+    def getch():
+        tty.setraw(fdInput)
+        ch = sys.stdin.buffer.raw.read(4).decode(sys.stdin.encoding)
+        if len(ch) == 1:
+            if ord(ch) < 32 or ord(ch) > 126:
+                ch = ord(ch)
+        elif ord(ch[0]) == 27:
+            ch = '\033' + ch[1:]
+        termios.tcsetattr(fdInput, termios.TCSADRAIN, termAttr)
+        return ch
 
 FOOD = '.'
 SPACE = ' '
-
-#code from:
-#https://stackoverflow.com/questions/510357/python-read-a-single-character-from-the-user/510364
-key_Enter = 13
-key_Esc = 27
-key_Up = '\033[A'
-key_Dn = '\033[B'
-key_Rt = '\033[C'
-key_Lt = '\033[D'
-fdInput = sys.stdin.fileno()
-termAttr = termios.tcgetattr(0)
-
-def getch():
-    tty.setraw(fdInput)
-    ch = sys.stdin.buffer.raw.read(4).decode(sys.stdin.encoding)
-    if len(ch) == 1:
-        if ord(ch) < 32 or ord(ch) > 126:
-            ch = ord(ch)
-    elif ord(ch[0]) == 27:
-        ch = '\033' + ch[1:]
-    termios.tcsetattr(fdInput, termios.TCSADRAIN, termAttr)
-    return ch
-#end
 
 if __name__ == '__main__':
     #get board dimensions
